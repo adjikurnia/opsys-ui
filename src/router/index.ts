@@ -5,7 +5,8 @@ import { createRouter, createWebHistory } from 'vue-router'
  * Navigasi kembali ke atas memakai breadcrumb di header (tanpa sidebar).
  */
 const router = createRouter({
-  history: createWebHistory(),
+  // import.meta.env.BASE_URL mengikuti `base` di vite.config.ts (mis. "/opsys-ui/" saat deploy ke GitHub Pages).
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'national', component: () => import('@/views/NationalView.vue') },
     { path: '/sistem/:systemId', name: 'system', component: () => import('@/views/SystemView.vue') },
