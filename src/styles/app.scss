@@ -1,0 +1,181 @@
+// Style global minimal — sisanya memakai utility class Vuetify.
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.v-application {
+  background: rgb(var(--v-theme-background)) !important;
+}
+
+// Latar kanvas peta / SLD bertitik halus (MANTAPS style)
+.ops-dot-grid {
+  background-color: #f8fafc;
+  background-image: radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+// Teks angka monospace untuk metrik
+.ops-mono {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+// Segmented view-mode bar
+.ops-segment {
+  background: rgba(241, 245, 249, 0.9);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.ops-scroll {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+// Marker leaflet: kartu pin putih ala MANTAPS
+.leaflet-container {
+  font-family: inherit;
+  background: #e8eef5;
+}
+.ops-pin-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  white-space: nowrap;
+  font-size: 12px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  &:hover {
+    border-color: #0046ad;
+    box-shadow: 0 6px 16px rgba(0, 70, 173, 0.25);
+  }
+}
+.ops-pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
+}
+.ops-pin-label {
+  margin-top: 3px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+// Tabel kerawanan format buku
+.ops-risk-table {
+  th {
+    background: #b4c6e7 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    border-right: 1px solid #94a3b8;
+    vertical-align: middle;
+  }
+  td {
+    border-right: 1px solid #cbd5e1;
+    vertical-align: top !important;
+    font-size: 12px !important;
+    line-height: 1.55;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+  tr:hover td {
+    background: #f0f7ff;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cetak A4 (SLD): sembunyikan seluruh chrome aplikasi, tampilkan hanya kanvas
+// SLD (.ops-print-area) penuh halaman — dipicu tombol "Cetak A4" (window.print()).
+// ---------------------------------------------------------------------------
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .ops-print-area,
+  .ops-print-area * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ops-print-area {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: #fff !important;
+    z-index: 9999 !important;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Skala tipografi mengikuti acuan mas Ridwan (Tailwind): text-xs 12px,
+// text-[11px]/[10px] untuk meta, text-sm 14px judul, text-base 16px judul utama.
+// Vuetify default terlalu besar, jadi utility class & komponen dikecilkan di sini.
+// ---------------------------------------------------------------------------
+.v-application,
+.v-overlay-container {
+  font-size: 12px;
+  line-height: 1.45;
+
+  .text-h4 { font-size: 22px !important; }
+  .text-h5 { font-size: 18px !important; }
+  .text-h6 { font-size: 15px !important; line-height: 1.3 !important; }
+  .text-subtitle-1 { font-size: 14px !important; line-height: 1.3 !important; }
+  .text-subtitle-2 { font-size: 12px !important; }
+  .text-body-1 { font-size: 13px !important; }
+  .text-body-2 { font-size: 12px !important; line-height: 1.4 !important; }
+  .text-caption { font-size: 11px !important; line-height: 1.4 !important; letter-spacing: 0 !important; }
+
+  .v-btn { font-size: 12px; }
+  .v-btn--size-small { font-size: 11px; }
+  .v-btn--size-x-small { font-size: 10px; }
+  .v-chip { font-size: 11px; }
+  .v-chip--size-small { font-size: 11px; }
+  .v-chip--size-x-small { font-size: 10px; }
+  .v-list-item-title { font-size: 12px; line-height: 1.35; }
+  .v-list-item-subtitle { font-size: 11px; }
+  .v-list-item { min-height: 32px; }
+  .v-tab { font-size: 12px; min-width: 60px; }
+  .v-table { font-size: 12px; }
+  .v-table > .v-table__wrapper > table > thead > tr > th { font-size: 11px; height: 36px; }
+  .v-table > .v-table__wrapper > table > tbody > tr > td { font-size: 12px; height: 36px; }
+  .v-field__input,
+  .v-field__input input,
+  .v-select__selection-text,
+  .v-field .v-label { font-size: 12px; }
+  .v-field--variant-outlined .v-field__input { min-height: 34px; padding-top: 4px; padding-bottom: 4px; }
+  .v-selection-control .v-label { font-size: 12px; }
+  .v-alert { font-size: 11px; }
+  .v-alert__content { font-size: 11px; }
+  .v-expansion-panel-title { font-size: 11px; }
+  .v-expansion-panel-text__wrapper { font-size: 11px; }
+  .v-breadcrumbs { font-size: 11px; }
+  .v-breadcrumbs-item,
+  .v-breadcrumbs-divider { font-size: 11px; }
+  .v-progress-linear { font-size: 10px; }
+  .v-empty-state__title { font-size: 15px; }
+  .v-empty-state__text { font-size: 12px; }
+  .v-avatar { font-size: 11px; }
+  .v-data-table-footer { font-size: 11px; }
+}
