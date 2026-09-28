@@ -20,7 +20,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-kembangan',
+    viewId: 'lbk-full',
     circuits: 2,
     loadingPct: 86,
     condition:
@@ -40,6 +40,13 @@ export const risks: RiskItem[] = [
     location: 'Jakarta Barat - Tangerang',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'TRANSFORMER', code: 'IBT_KMBGN_1' },
+    relatedAssets: [
+      { code: 'GITET_KMBGN', name: 'GITET Kembangan 500 kV', role: 'Gardu Induk Induk (lokasi IBT)', kind: 'GITET' },
+      { code: 'IBT_KMBGN_1', name: 'IBT 1 Kembangan (500/150 kV)', role: 'Transformator Penurun Tegangan', kind: 'IBT' },
+      { code: 'IBT_KMBGN_2', name: 'IBT 2 Kembangan (500/150 kV)', role: 'Transformator Penurun Tegangan', kind: 'IBT' },
+      { name: 'PLTU Lontar', role: 'Pembangkit Pemasok Utama', kind: 'PEMBANGKIT' },
+      { code: 'KMBGN', name: 'Bus 150 kV Kembangan', role: 'Beban Tersambung', kind: 'GI' },
+    ],
   },
   {
     id: 2,
@@ -56,7 +63,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-kembangan',
+    viewId: 'lbk-full',
     circuits: 2,
     lengthKm: 9.8,
     loadingPct: 72,
@@ -74,6 +81,12 @@ export const risks: RiskItem[] = [
     location: 'Jakarta Barat - Jakarta Selatan',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'CIRCUIT', code: 'SKTT_KMBGN_NSYAN' },
+    relatedAssets: [
+      { code: 'KMBGN', name: 'GI Kembangan (150 kV)', role: 'Gardu Induk Pangkal', kind: 'GI' },
+      { code: 'NSYAN', name: 'GI New Senayan', role: 'Gardu Induk Ujung', kind: 'GI' },
+      { code: 'SKTT_KMBGN_NSYAN', name: 'SKTT Kembangan - New Senayan', role: 'Penghantar Kabel Tanah 150 kV', kind: 'GI' },
+      { code: 'SNYAN', name: 'GIS Senayan (ZDT)', role: 'Beban Hilir Terdampak', kind: 'GIS' },
+    ],
   },
   {
     id: 3,
@@ -90,7 +103,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-balaraja',
+    viewId: 'lbk-full',
     circuits: 1,
     condition: 'Ruas penghantar Pasar Kemis Baru - Gajah Tunggal - Pasar Kemis masih beroperasi single phi.',
     impact: 'Berpotensi padam pada KTT GI Gajah Tunggal saat terjadi N-1-1.',
@@ -101,6 +114,11 @@ export const risks: RiskItem[] = [
     location: 'Tangerang',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'CIRCUIT', code: 'SUTT_PSKMB_GJTGL' },
+    relatedAssets: [
+      { code: 'PSKMB', name: 'GI Pasar Kemis Baru', role: 'Gardu Induk Pangkal', kind: 'GI' },
+      { code: 'GJTGL', name: 'GI Gajah Tunggal (KTT)', role: 'Gardu Induk Antara', kind: 'GI' },
+      { code: 'PSKMS', name: 'GI Pasar Kemis', role: 'Gardu Induk Ujung', kind: 'GI' },
+    ],
   },
   {
     id: 4,
@@ -117,7 +135,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-kembangan',
+    viewId: 'lbk-full',
     circuits: 2,
     lengthKm: 6.4,
     loadingPct: 61,
@@ -132,6 +150,12 @@ export const risks: RiskItem[] = [
     location: 'Tangerang',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'CIRCUIT', code: 'SKTT_CKUPA_JTAKE' },
+    relatedAssets: [
+      { code: 'CKUPA', name: 'GI Cikupa', role: 'Gardu Induk Pangkal', kind: 'GI' },
+      { code: 'JTAKE', name: 'GI Jatake', role: 'Gardu Induk Ujung', kind: 'GI' },
+      { code: 'JTKBR', name: 'GI Jatake Baru', role: 'Beban Terdampak', kind: 'GI' },
+      { code: 'MAXIM', name: 'GI Maxim', role: 'Beban Terdampak', kind: 'GI' },
+    ],
   },
   {
     id: 5,
@@ -148,7 +172,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-kembangan',
+    viewId: 'lbk-full',
     circuits: 2,
     condition: 'Ruas Durikosambi - Cengkareng tidak memenuhi kriteria N-1 saat GI Cengkareng dipasok dari SS Muarakarang.',
     impact: 'Overload sirkit pasangan dan potensi pemadaman beban GI Cengkareng.',
@@ -157,6 +181,11 @@ export const risks: RiskItem[] = [
     location: 'Jakarta Barat',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'BAY', code: 'DKSBI' },
+    relatedAssets: [
+      { code: 'DKSBI', name: 'GITET Duri Kosambi 500 kV', role: 'Gardu Induk Pangkal', kind: 'GITET' },
+      { name: 'GI Cengkareng', role: 'Gardu Induk Ujung', kind: 'GI' },
+      { name: 'SS Muarakarang', role: 'Sumber Pasokan Alternatif', kind: 'GI' },
+    ],
   },
   {
     id: 6,
@@ -173,7 +202,7 @@ export const risks: RiskItem[] = [
     systemId: 'jamali',
     upbId: 'upb-jakban',
     subsystemId: 'ss-lbk',
-    viewId: 'lbk-kembangan',
+    viewId: 'lbk-full',
     circuits: 2,
     condition:
       'GIS Senayan merupakan kawasan Zero Down Time (ZDT) namun hanya dipasok radial dari SKTT New Senayan - Senayan; SKTT Petukangan - Senayan rusak.',
@@ -186,6 +215,11 @@ export const risks: RiskItem[] = [
     location: 'Jakarta Selatan',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'SUBSTATION', code: 'SNYAN' },
+    relatedAssets: [
+      { code: 'NSYAN', name: 'GI New Senayan', role: 'Gardu Induk Pemasok', kind: 'GI' },
+      { code: 'SNYAN', name: 'GIS Senayan (ZDT)', role: 'Gardu Induk Beban — Zero Down Time', kind: 'GIS' },
+      { name: 'PLTD Senayan', role: 'Pembangkit Standby', kind: 'PEMBANGKIT' },
+    ],
   },
   {
     id: 7,
@@ -212,6 +246,12 @@ export const risks: RiskItem[] = [
     location: 'Tangerang',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'TRANSFORMER', code: 'IBT_BLRJA_3' },
+    relatedAssets: [
+      { code: 'GITET_BLRJA', name: 'GITET Balaraja 500 kV', role: 'Gardu Induk Induk (lokasi IBT)', kind: 'GITET' },
+      { code: 'IBT_BLRJA_3', name: 'IBT 3 Balaraja (500/150 kV)', role: 'Transformator Penurun Tegangan', kind: 'IBT' },
+      { code: 'IBT_BLRJA_4', name: 'IBT 4 Balaraja (500/150 kV)', role: 'Transformator Penurun Tegangan', kind: 'IBT' },
+      { code: 'CKUPA', name: 'GI Cikupa', role: 'Beban Terdampak', kind: 'GI' },
+    ],
   },
   {
     id: 8,
@@ -243,5 +283,11 @@ export const risks: RiskItem[] = [
     location: 'Banten - Jawa Barat',
     updatedAt: '28 Juni 2026',
     attach: { kind: 'CIRCUIT', code: 'SUTET_CLGON_CIBNG' },
+    relatedAssets: [
+      { code: 'CLGON', name: 'GITET Cilegon 500 kV', role: 'Gardu Induk Pangkal (Evakuasi PLTU Banten)', kind: 'GITET' },
+      { code: 'CIBNG', name: 'GITET Cibinong 500 kV', role: 'Gardu Induk Ujung', kind: 'GITET' },
+      { name: 'PLTU Suralaya', role: 'Pembangkit Terkait', kind: 'PEMBANGKIT' },
+      { name: 'PLTU Jawa 7', role: 'Pembangkit Terkait', kind: 'PEMBANGKIT' },
+    ],
   },
 ]

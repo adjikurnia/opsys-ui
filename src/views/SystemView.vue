@@ -13,7 +13,7 @@ import RiskTable from '@/components/risk/RiskTable.vue'
 import SldCanvas from '@/components/sld/SldCanvas.vue'
 import SldDetailPanel from '@/components/sld/SldDetailPanel.vue'
 import SldLayerPanel, { type SldLayers } from '@/components/sld/SldLayerPanel.vue'
-import UploadSldDialog from '@/components/sld/UploadSldDialog.vue'
+import { findSldSelectionByCode } from '@/composables/useSldLayout'
 
 /** Level 2 — Sistem (JAMALI): peta UP2B | SLD 500 kV | List Kerawanan. */
 const route = useRoute()
@@ -30,7 +30,6 @@ type Mode = 'maps' | 'sld' | 'list'
 const mode = computed<Mode>(() => (['maps', 'sld', 'list'].includes(String(route.query.mode)) ? (route.query.mode as Mode) : 'maps'))
 const setMode = (m: string) => router.replace({ query: { ...route.query, mode: m } })
 const infoOpen = ref(false)
-const uploadOpen = ref(false)
 const printPage = () => window.print()
 
 const modeItems = computed<ViewModeItem[]>(() => [
@@ -67,7 +66,16 @@ const markers = computed<MapMarker[]>(() =>
     }
   }),
 )
-const goUpb = (upbId: string) => router.push({ name: 'upb', params: { systemId: systemId.value, upbId } })
+/**
+ * Klik UP2B langsung membuka SLD subsistem pertama yang punya gambar —
+ * SLD lebih prioritas daripada peta wilayah UP2B. Peta UP2B tetap bisa dibuka
+ * lewat tombol "Maps" pada halaman subsistem atau breadcrumb.
+ */
+function goUpb(upbId: string) {
+  const withSld = store.subsystemsByUpb(upbId).find((s) => store.graphsBySubsystem(s.id).length)
+  if (withSld) router.push({ name: 'subsystem', params: { systemId: systemId.value, upbId, subsystemId: withSld.id } })
+  else router.push({ name: 'upb', params: { systemId: systemId.value, upbId } })
+}
 
 // ---------- SLD 500 kV ----------
 const graph = computed(() => store.graphById('backbone-500'))
@@ -81,6 +89,13 @@ function selectRisk(r: RiskItem) {
   selection.value = { kind: 'risk', risk: r }
   detailOpen.value = true
   canvas.value?.focusRisk(r.number)
+}
+function selectAsset(code: string) {
+  const found = findSldSelectionByCode(graph.value, code)
+  if (found) {
+    selection.value = found
+    canvas.value?.focusSelection(found)
+  }
 }
 watch(
   () => [mode.value, route.query.risk],
@@ -110,7 +125,6 @@ const countBy = (list: RiskItem[]) => ({ n1: list.filter((r) => r.category === '
     <ViewModeBar :items="modeItems" :model-value="mode" @update:model-value="setMode">
       <template #extra>
         <v-btn v-if="mode === 'list'" size="small" :variant="infoOpen ? 'flat' : 'text'" :color="infoOpen ? 'primary' : 'grey-darken-2'" class="font-weight-bold" prepend-icon="mdi-information-outline" @click="infoOpen = true">Info Sistem</v-btn>
-        <v-btn v-if="mode === 'sld'" size="small" variant="text" color="grey-darken-2" class="font-weight-bold" prepend-icon="mdi-file-excel-outline" @click="uploadOpen = true">Upload SLD</v-btn>
         <v-btn v-if="mode === 'sld'" size="small" variant="text" color="grey-darken-2" class="font-weight-bold" prepend-icon="mdi-printer-outline" @click="printPage">Cetak A4</v-btn>
         <v-divider vertical class="mx-1" />
         <v-btn size="small" variant="text" color="grey-darken-2" class="font-weight-bold" prepend-icon="mdi-transformer" :to="{ name: 'ibt-list', params: { systemId } }">Daftar IBT</v-btn>
@@ -145,7 +159,7 @@ const countBy = (list: RiskItem[]) => ({ n1: list.filter((r) => r.category === '
 
       <!-- Panel kanan: detail SLD -->
       <aside v-if="mode === 'sld' && detailOpen" class="bg-surface border-s flex-shrink-0" style="width: 400px">
-        <SldDetailPanel :graph="graph" :selection="selection" :risks="sldRisks" @select-risk="selectRisk" @close="detailOpen = false" />
+        <SldDetailPanel :graph="graph" :selection="selection" :risks="sldRisks" @select-risk="selectRisk" @select-asset="selectAsset" @close="detailOpen = false" />
       </aside>
 
       <!-- Panel kanan: info sistem (statis di maps, drawer di list) -->
@@ -222,7 +236,5 @@ const countBy = (list: RiskItem[]) => ({ n1: list.filter((r) => r.category === '
         </template>
       </SidePanel>
     </div>
-
-    <UploadSldDialog v-model="uploadOpen" :context-name="`Sistem ${system.name}`" view-name="SLD 500 kV" />
   </div>
 </template>

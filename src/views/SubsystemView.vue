@@ -7,13 +7,12 @@ import PageBanner from '@/components/common/PageBanner.vue'
 import ViewModeBar, { type ViewModeItem } from '@/components/common/ViewModeBar.vue'
 import SidePanel from '@/components/common/SidePanel.vue'
 import InfoTab from '@/components/common/InfoTab.vue'
-import RiskCountChips from '@/components/common/RiskCountChips.vue'
 import RiskLevelChip from '@/components/common/RiskLevelChip.vue'
 import RiskTable from '@/components/risk/RiskTable.vue'
 import SldCanvas from '@/components/sld/SldCanvas.vue'
 import SldDetailPanel from '@/components/sld/SldDetailPanel.vue'
 import SldLayerPanel, { type SldLayers } from '@/components/sld/SldLayerPanel.vue'
-import UploadSldDialog from '@/components/sld/UploadSldDialog.vue'
+import { findSldSelectionByCode } from '@/composables/useSldLayout'
 
 /** Level 4 — Subsistem: SLD per sudut pandang (tampilan engine MANTAPS) | List Kerawanan. */
 const route = useRoute()
@@ -32,7 +31,6 @@ type Mode = 'sld' | 'list'
 const mode = computed<Mode>(() => (route.query.mode === 'list' ? 'list' : 'sld'))
 const setMode = (m: string) => router.replace({ query: { ...route.query, mode: m } })
 const infoOpen = ref(false)
-const uploadOpen = ref(false)
 
 const modeItems = computed<ViewModeItem[]>(() => [
   { value: 'maps', label: 'Maps', icon: 'mdi-map-outline', navigate: true },
@@ -48,7 +46,6 @@ const viewId = computed(() => (typeof route.query.view === 'string' && graphs.va
 const setView = (id: string) => router.replace({ query: { ...route.query, view: id, risk: undefined } })
 const graph = computed(() => (viewId.value ? store.graphById(viewId.value) : undefined))
 const viewRisks = computed(() => (viewId.value ? store.risksByView(viewId.value) : []))
-const scenario = ref('Normal operasi')
 const printPage = () => window.print()
 
 const selection = ref<SldSelection>(null)
@@ -64,6 +61,13 @@ function selectRisk(r: RiskItem) {
   selection.value = { kind: 'risk', risk: r }
   detailOpen.value = true
   canvas.value?.focusRisk(r.number)
+}
+function selectAsset(code: string) {
+  const found = findSldSelectionByCode(graph.value, code)
+  if (found) {
+    selection.value = found
+    canvas.value?.focusSelection(found)
+  }
 }
 watch(
   () => [viewId.value, route.query.risk, mode.value],
@@ -95,8 +99,7 @@ const stats = computed(() => {
 
 <template>
   <div v-if="sub && upb" class="d-flex flex-column overflow-hidden">
-    <PageBanner step="4" :title="sub.name" subtitle="Single Line Diagram (SLD) subsistem interkoneksi tegangan tinggi — Tier per sudut pandang · overlay kerawanan" :back-to="{ name: 'upb', params: { systemId, upbId } }" back-label="Kembali ke UP2B">
-      <v-select v-if="mode === 'sld'" v-model="scenario" :items="['Normal operasi', 'Pemeliharaan', 'Split bus']" style="width: 170px" prepend-inner-icon="mdi-tune-variant" />
+    <PageBanner step="3" :title="`${upb.name} — ${sub.name}`" subtitle="Single Line Diagram (SLD) subsistem interkoneksi tegangan tinggi — Tier per sudut pandang · overlay kerawanan" :back-to="{ name: 'system', params: { systemId } }" back-label="Kembali ke Sistem">
       <v-btn v-if="mode === 'sld'" variant="outlined" color="grey-darken-1" size="small" prepend-icon="mdi-printer-outline" class="bg-surface" @click="printPage">Cetak A4</v-btn>
     </PageBanner>
 
@@ -117,12 +120,11 @@ const stats = computed(() => {
           <v-list density="compact" class="py-0" nav>
             <template v-for="s in subs" :key="s.id">
               <v-list-item :active="s.id === subsystemId" color="primary" rounded="lg" class="border" :class="s.id === subsystemId ? 'border-primary' : 'border-opacity-0'" style="--v-list-prepend-gap: 8px" @click="goSubsystem(s.id)">
-                <template #prepend><v-icon :icon="s.id === subsystemId ? 'mdi-chevron-down' : 'mdi-chevron-right'" size="16" /></template>
                 <v-list-item-title class="text-caption font-weight-bold text-wrap" style="line-height: 1.25">{{ s.name.replace('Subsistem ', 'SS ') }}</v-list-item-title>
-                <v-list-item-subtitle class="text-caption" style="font-size: 10px">{{ s.views.length ? s.views.length + ' sudut pandang' : 'SLD belum tersedia' }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="text-caption" style="font-size: 10px">{{ s.views.length ? s.giCount + ' GI · ' + s.ibtCount + ' IBT' : 'SLD belum tersedia' }}</v-list-item-subtitle>
               </v-list-item>
-              <!-- sudut pandang -->
-              <div v-if="s.id === subsystemId" class="pl-6 pr-1 py-1 d-flex flex-column ga-1">
+              <!-- Sudut pandang hanya ditampilkan bila subsistem digambar lebih dari satu halaman -->
+              <div v-if="s.id === subsystemId && s.views.length > 1" class="pl-6 pr-1 py-1 d-flex flex-column ga-1">
                 <v-sheet v-for="v in s.views" :key="v.id" class="rounded-lg border pa-2 cursor-pointer" :class="v.id === viewId ? 'bg-blue-lighten-5 border-primary' : 'bg-surface-light'" style="cursor: pointer" @click="setView(v.id)">
                   <div class="text-caption font-weight-bold">{{ v.name }}</div>
                   <div class="text-caption text-medium-emphasis" style="font-size: 10px">sudut pandang</div>
@@ -150,24 +152,22 @@ const stats = computed(() => {
           <!-- Tab sudut pandang -->
           <div class="bg-surface border-b px-4 py-2 d-flex align-center justify-space-between flex-shrink-0">
             <div class="d-flex align-center ga-2">
-              <v-btn v-for="g in graphs" :key="g.id" size="small" :variant="g.id === viewId ? 'flat' : 'text'" :color="g.id === viewId ? 'primary' : 'grey-darken-2'" class="font-weight-bold" @click="setView(g.id)">{{ g.viewName }}</v-btn>
+              <!-- Tab hanya perlu bila ada lebih dari satu gambar -->
+              <template v-if="graphs.length > 1">
+                <v-btn v-for="g in graphs" :key="g.id" size="small" :variant="g.id === viewId ? 'flat' : 'text'" :color="g.id === viewId ? 'primary' : 'grey-darken-2'" class="font-weight-bold" @click="setView(g.id)">{{ g.viewName }}</v-btn>
+              </template>
+              <span v-else-if="graph" class="text-body-2 font-weight-bold">{{ graph.title }}</span>
               <span v-if="!graphs.length" class="text-caption text-medium-emphasis">Belum ada gambar SLD untuk subsistem ini.</span>
             </div>
             <div class="d-flex align-center ga-2 text-caption text-medium-emphasis">
               <v-chip size="x-small" variant="outlined" class="ops-mono">{{ graph?.ruleProfile ?? '-' }}</v-chip>
               <v-chip size="x-small" variant="tonal" color="success" prepend-icon="mdi-check-circle-outline">Versi topologi AKTIF</v-chip>
-              <v-divider vertical class="mx-1" />
-              <v-btn size="small" variant="outlined" color="grey-darken-1" class="font-weight-bold bg-surface" prepend-icon="mdi-file-excel-outline" @click="uploadOpen = true">Upload SLD</v-btn>
             </div>
           </div>
 
           <div class="flex-grow-1 position-relative" style="min-height: 0">
             <SldCanvas v-if="graph" ref="canvas" v-model:selection="selection" :graph="graph" :risks="viewRisks" :layers="layers" />
-            <v-empty-state v-else icon="mdi-sitemap-outline" title="SLD belum tersedia" text="Subsistem ini belum memiliki gambar SLD. Unggah dari Excel atau pilih subsistem lain di panel kiri." class="h-100">
-              <template #actions>
-                <v-btn color="primary" variant="flat" class="font-weight-bold" prepend-icon="mdi-file-excel-outline" @click="uploadOpen = true">Upload SLD</v-btn>
-              </template>
-            </v-empty-state>
+            <v-empty-state v-else icon="mdi-sitemap-outline" title="SLD belum tersedia" text="Subsistem ini belum memiliki gambar SLD pada prototipe. Pilih subsistem lain di panel kiri." class="h-100" />
             <v-btn v-if="graph && !detailOpen" class="position-absolute" style="right: 12px; top: 12px" size="small" color="primary" variant="flat" prepend-icon="mdi-dock-right" @click="detailOpen = true">Panel Detail</v-btn>
           </div>
         </template>
@@ -180,7 +180,7 @@ const stats = computed(() => {
 
       <!-- Kanan: detail objek / kerawanan -->
       <aside v-if="mode === 'sld' && graph && detailOpen" class="bg-surface border-s flex-shrink-0" style="width: 400px">
-        <SldDetailPanel :graph="graph" :selection="selection" :risks="viewRisks" @select-risk="selectRisk" @close="detailOpen = false" />
+        <SldDetailPanel :graph="graph" :selection="selection" :risks="viewRisks" @select-risk="selectRisk" @select-asset="selectAsset" @close="detailOpen = false" />
       </aside>
 
       <!-- Drawer info subsistem (mode list) -->
@@ -201,12 +201,10 @@ const stats = computed(() => {
             <div class="d-flex justify-space-between py-1 border-b"><span class="text-medium-emphasis">Beban Puncak:</span><b class="ops-mono">{{ sub.peakLoadMW }} MW</b></div>
             <div class="d-flex justify-space-between py-1 align-center"><span class="text-medium-emphasis">Tingkat:</span><RiskLevelChip :level="sub.riskLevel" /></div>
           </v-sheet>
-          <RiskCountChips :counts="store.riskCountsBySubsystem(subsystemId)" />
           <v-btn color="primary" variant="flat" class="font-weight-bold" append-icon="mdi-arrow-right" block @click="infoOpen = false; setMode('sld')">Buka SLD Subsistem</v-btn>
         </div>
       </SidePanel>
     </div>
 
-    <UploadSldDialog v-model="uploadOpen" :context-name="sub.name" :view-name="graph?.viewName" />
   </div>
 </template>

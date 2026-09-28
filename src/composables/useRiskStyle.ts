@@ -1,4 +1,4 @@
-import type { RiskCategory, RiskLevel, SubstationStatus } from '@/types'
+import type { RiskCategory, RiskLevel, SldStatus, SubstationStatus } from '@/types'
 
 /** Warna Vuetify (nama theme) untuk tingkat kerawanan. */
 export function levelColor(level: RiskLevel): string {
@@ -50,6 +50,20 @@ export function statusHex(status: SubstationStatus): string {
     default:
       return '#16a34a'
   }
+}
+
+/** Label Bahasa Indonesia untuk status objek SLD (ENERGIZED dll.). */
+export const sldStatusLabel: Record<SldStatus, string> = {
+  ENERGIZED: 'Bertegangan',
+  DE_ENERGIZED: 'Tidak bertegangan',
+  PLANNED: 'Rencana',
+}
+
+/** Warna chip status objek SLD. */
+export function sldStatusColor(status: SldStatus): string {
+  if (status === 'ENERGIZED') return 'success'
+  if (status === 'PLANNED') return 'info'
+  return 'grey'
 }
 
 /** Warna tegangan P2B: 500 kV biru, 150 kV merah, 70 kV kuning. */

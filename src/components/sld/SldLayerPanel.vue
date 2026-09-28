@@ -30,9 +30,6 @@ const emit = defineEmits<{ 'update:modelValue': [v: SldLayers] }>()
     <v-checkbox :model-value="false" density="compact" hide-details disabled>
       <template #label><span class="text-body-2"><b>Defense scheme</b> <span class="text-caption text-disabled">belum ada data</span></span></template>
     </v-checkbox>
-    <v-checkbox :model-value="false" density="compact" hide-details disabled>
-      <template #label><span class="text-body-2"><b>AHI aset</b> <span class="text-caption text-disabled">belum ada data</span></span></template>
-    </v-checkbox>
 
     <v-alert density="compact" variant="tonal" color="primary" class="text-caption mt-3" icon="mdi-lightbulb-outline">
       Scroll untuk zoom, drag untuk geser. Klik busbar / penghantar / bay / pin untuk detail.

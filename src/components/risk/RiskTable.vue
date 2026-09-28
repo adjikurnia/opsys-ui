@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { RiskItem } from '@/types'
-import { categoryColor } from '@/composables/useRiskStyle'
 
 /** Tabel kerawanan format resmi Buku Kerawanan (No, Segmen, UIT, Kondisi, Dampak, Mitigasi, Usulan, Aksi). */
 const props = defineProps<{
@@ -76,7 +75,6 @@ const lines = (t: string) => t.split('\n').filter((l) => l.trim())
               <td>
                 <div class="font-weight-bold text-primary">{{ r.lineGiSegment }}</div>
                 <div class="d-flex flex-wrap ga-1 mt-1">
-                  <v-chip size="x-small" :color="categoryColor(r.category)" variant="flat" class="font-weight-black">{{ r.category }}</v-chip>
                   <v-chip size="x-small" variant="outlined" class="ops-mono">{{ r.voltage }}</v-chip>
                   <v-chip v-if="r.circuits" size="x-small" variant="outlined" class="ops-mono">{{ r.circuits }} Sirkit</v-chip>
                   <v-chip v-if="r.lengthKm" size="x-small" variant="outlined" class="ops-mono">{{ r.lengthKm }} km</v-chip>

@@ -7,7 +7,6 @@ import PageBanner from '@/components/common/PageBanner.vue'
 import ViewModeBar, { type ViewModeItem } from '@/components/common/ViewModeBar.vue'
 import SidePanel from '@/components/common/SidePanel.vue'
 import InfoTab from '@/components/common/InfoTab.vue'
-import RiskCountChips from '@/components/common/RiskCountChips.vue'
 import RiskLevelChip from '@/components/common/RiskLevelChip.vue'
 import BaseMap, { type MapMarker } from '@/components/map/BaseMap.vue'
 import RiskTable from '@/components/risk/RiskTable.vue'
@@ -141,7 +140,6 @@ function onGiSelect(id: string) {
                 </div>
                 <div class="text-h6 font-weight-black text-error ops-mono">{{ risks.length }}</div>
               </v-sheet>
-              <RiskCountChips :counts="store.riskCountsByUpb(upbId)" class="mt-2" />
             </v-card>
 
             <div>

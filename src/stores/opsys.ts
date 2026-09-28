@@ -35,6 +35,11 @@ export const useOpsysStore = defineStore('opsys', () => {
     return ibts.filter((i) => upbIds.has(i.upbId))
   }
 
+  const substationsBySystem = (systemId: string) => {
+    const upbIds = new Set(upbsBySystem(systemId).map((u) => u.id))
+    return substations.filter((s) => upbIds.has(s.upbId))
+  }
+
   const graphsBySubsystem = (subsystemId: string) => sldGraphs.filter((g) => g.subsystemId === subsystemId)
   const graphById = (id: string) => sldGraphs.find((g) => g.id === id)
 
@@ -70,6 +75,7 @@ export const useOpsysStore = defineStore('opsys', () => {
     riskCountsByUpb,
     riskCountsBySubsystem,
     ibtsBySystem,
+    substationsBySystem,
     graphsBySubsystem,
     graphById,
   }

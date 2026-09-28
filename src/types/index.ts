@@ -88,6 +88,15 @@ export interface RiskSolution {
 
 export type RiskAttachKind = 'SUBSTATION' | 'CIRCUIT' | 'TRANSFORMER' | 'BAY'
 
+/** Aset yang terdampak/terlibat pada jalur kerawanan (tab "Aset Terkait"). */
+export interface RelatedAsset {
+  /** Kode objek SLD bila ada (untuk lompat-pilih di kanvas); kosongkan bila aset di luar SLD (mis. pembangkit). */
+  code?: string
+  name: string
+  role: string
+  kind: 'GITET' | 'GI' | 'GIS' | 'IBT' | 'PEMBANGKIT'
+}
+
 export interface RiskItem {
   id: number
   /** Nomor urut di buku kerawanan. */
@@ -116,6 +125,8 @@ export interface RiskItem {
   updatedAt: string
   /** Objek SLD tempat pin kerawanan ditempel. */
   attach?: { kind: RiskAttachKind; code: string }
+  /** Aset-aset yang terlibat di jalur kerawanan (tab "Aset Terkait"). */
+  relatedAssets?: RelatedAsset[]
 }
 
 export interface Ibt {

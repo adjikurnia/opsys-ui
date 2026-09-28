@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { sldStatusLabel } from '@/composables/useRiskStyle'
 import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 import type { RiskItem, SldGraph, SldSelection } from '@/types'
 import { SLD, tierLineY, useSldLayout } from '@/composables/useSldLayout'
@@ -79,16 +80,43 @@ function select(s: SldSelection, e: MouseEvent) {
   if (!moved) emit('update:selection', s)
 }
 
-/** Geser viewport agar pin kerawanan tertentu terlihat (tanpa mengubah zoom). */
+/** Geser & zoom-in viewport agar sebuah titik terlihat jelas (tidak zoom-out bila sudah lebih dekat). */
+function centerOn(x: number, y: number) {
+  const targetW = Math.min(vb.value.w, bounds.value.width * 0.35)
+  const w = Math.max(targetW, 320)
+  const h = w * (vb.value.h / vb.value.w)
+  vb.value = { x: x - w / 2, y: y - h / 2, w, h }
+}
+
 function focusRisk(number: number) {
   const pin = riskPins.value.find((p) => p.risk.number === number)
-  if (!pin) return
-  vb.value = { ...vb.value, x: pin.x - vb.value.w / 2, y: pin.y - vb.value.h / 2 }
+  if (pin) centerOn(pin.x, pin.y)
+}
+
+/** Zoom ke objek yang sedang terpilih (dipakai saat lompat dari tab "Aset Terkait" / navigasi lain). */
+function focusSelection(sel: SldSelection) {
+  if (!sel) return
+  if (sel.kind === 'risk') {
+    focusRisk(sel.risk.number)
+  } else if (sel.kind === 'node') {
+    const g = nodes.value.find((n) => n.node.code === sel.node.code)
+    if (g) centerOn((g.x1 + g.x2) / 2, g.y)
+  } else if (sel.kind === 'circuit') {
+    const g = circuits.value.find((c) => c.circuit.id === sel.circuit.id)
+    const w = g?.wires[0]
+    if (w) centerOn(w.mid.x, w.mid.y)
+  } else if (sel.kind === 'ibt') {
+    const g = ibtLinks.value.find((i) => i.ibt.id === sel.ibt.id)
+    if (g) centerOn(sel.ibt.x, (g.y1 + g.y2) / 2)
+  } else if (sel.kind === 'bay') {
+    const g = bays.value.find((b) => b.bay.id === sel.bay.id)
+    if (g) centerOn(sel.bay.x, g.y)
+  }
 }
 
 onMounted(fit)
 watch(() => props.graph?.id, () => setTimeout(fit, 0))
-defineExpose({ fit, focusRisk, zoomIn: () => zoomAt(1 / 1.25), zoomOut: () => zoomAt(1.25) })
+defineExpose({ fit, focusRisk, focusSelection, zoomIn: () => zoomAt(1 / 1.25), zoomOut: () => zoomAt(1.25) })
 
 // ---------- cetak A4: paksa fit ke area cetak sesaat sebelum print ----------
 const printedAt = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -130,7 +158,7 @@ const viewBoxStr = computed(() => `${vb.value.x} ${vb.value.y} ${vb.value.w} ${v
             <path :d="w.d" fill="none" stroke="white" stroke-width="7" stroke-linejoin="round" />
             <path v-if="isSelCircuit(c.circuit.id)" :d="w.d" fill="none" stroke="#0046ad" stroke-opacity="0.35" stroke-width="10" stroke-linejoin="round" />
             <path :d="w.d" fill="none" :stroke="c.color" :stroke-width="SLD.wireStroke" :stroke-dasharray="c.dash">
-              <title>{{ c.circuit.name }} - {{ c.circuit.type }}, {{ c.circuit.status }}</title>
+              <title>{{ c.circuit.name }} - {{ c.circuit.type }}, {{ sldStatusLabel[c.circuit.status] }}</title>
             </path>
             <rect v-for="(p, j) in w.pmts" :key="j" :x="p.x" :y="p.y" :width="SLD.pmt" :height="SLD.pmt" :fill="c.color" />
           </template>
@@ -142,7 +170,7 @@ const viewBoxStr = computed(() => `${vb.value.x} ${vb.value.y} ${vb.value.w} ${v
         <g v-for="g in ibtLinks" :key="g.ibt.id" class="sld-hit" @click="select({ kind: 'ibt', ibt: g.ibt }, $event)">
           <rect v-if="isSelIbt(g.ibt.id)" :x="g.ibt.x - 18" :y="g.y1 + 6" width="36" :height="g.y2 - g.y1 - 12" rx="4" fill="#0046ad" fill-opacity="0.08" stroke="#0046ad" stroke-width="1.5" stroke-dasharray="4 3" />
           <rect :x="g.ibt.x - 14" :y="g.y1 + 4" width="28" :height="g.y2 - g.y1 - 8" fill="transparent" />
-          <path :d="`M${g.ibt.x},${g.y1} V${g.y2}`" fill="none" stroke="#8a6a3a" stroke-width="1.6"><title>{{ g.ibt.name }} - {{ g.ibt.status }}</title></path>
+          <path :d="`M${g.ibt.x},${g.y1} V${g.y2}`" fill="none" stroke="#8a6a3a" stroke-width="1.6"><title>{{ g.ibt.name }} - {{ sldStatusLabel[g.ibt.status] }}</title></path>
           <rect :x="g.ibt.x - 5" :y="g.y1 + 7" width="10" height="10" fill="#0047AB" />
           <g fill="#ffffff" stroke-width="1.7">
             <circle :cx="g.ibt.x" :cy="g.y1 + (g.y2 - g.y1) * 0.47" r="7.5" stroke="#0047AB" />
@@ -158,7 +186,7 @@ const viewBoxStr = computed(() => `${vb.value.x} ${vb.value.y} ${vb.value.w} ${v
       <g id="busbars">
         <g v-for="g in nodes" :key="g.node.code" class="sld-hit" @click="select({ kind: 'node', node: g.node }, $event)">
           <rect v-if="isSelNode(g.node.code)" :x="g.x1 - 8" :y="g.y - 14" :width="g.x2 - g.x1 + 16" :height="g.node.transformers || g.node.capacitors ? 62 : 28" rx="5" fill="#0046ad" fill-opacity="0.07" stroke="#0046ad" stroke-width="1.5" stroke-dasharray="4 3" />
-          <title>{{ g.node.name }} [{{ g.node.code }}] {{ g.node.type }} {{ g.node.voltageKv }} kV - {{ g.node.status }} - role {{ g.node.role }}</title>
+          <title>{{ g.node.name }} [{{ g.node.code }}] {{ g.node.type }} {{ g.node.voltageKv }} kV - {{ sldStatusLabel[g.node.status] }} - role {{ g.node.role }}</title>
           <text v-if="layers.labels" :x="g.labelX" :y="g.labelY" font-size="12.5" font-weight="700" paint-order="stroke" stroke="#ffffff" stroke-width="3" stroke-linejoin="round" :text-anchor="g.labelAnchor" fill="#0f274a">{{ g.node.code }}</text>
           <rect :x="g.x1 - 6" :y="g.y - 12" :width="g.x2 - g.x1 + 12" :height="g.node.transformers || g.node.capacitors ? 50 : 24" fill="transparent" />
           <line :x1="g.x1" :x2="g.x2" :y1="g.y" :y2="g.y" :stroke="g.node.status === 'ENERGIZED' ? g.color : '#9AA0A6'" :stroke-width="SLD.busStroke" />
@@ -192,7 +220,7 @@ const viewBoxStr = computed(() => `${vb.value.x} ${vb.value.y} ${vb.value.w} ${v
       <g id="bays">
         <g v-for="b in bays" :key="b.bay.id" class="sld-hit" @click="select({ kind: 'bay', bay: b.bay }, $event)">
           <rect v-if="isSelBay(b.bay.id)" :x="b.bay.x - 20" :y="b.y + 4" width="40" :height="SLD.bayLen + 20" rx="4" fill="#0046ad" fill-opacity="0.08" stroke="#0046ad" stroke-width="1.5" stroke-dasharray="4 3" />
-          <title>{{ b.bay.name }} [{{ b.bay.code }}] - bay di bus {{ b.bay.busCode }} ({{ b.bay.status }})</title>
+          <title>{{ b.bay.name }} [{{ b.bay.code }}] - bay di bus {{ b.bay.busCode }} ({{ sldStatusLabel[b.bay.status] }})</title>
           <rect :x="b.bay.x - 16" :y="b.y + 3" width="32" :height="SLD.bayLen + 18" fill="transparent" />
           <template v-for="x in b.xs" :key="x">
             <path :d="`M${x},${b.y} V${b.y + SLD.bayLen}`" fill="none" :stroke="b.color" stroke-width="2.1" :stroke-dasharray="b.bay.status === 'PLANNED' ? '2 4' : undefined" />

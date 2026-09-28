@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { RiskCategory, RiskItem, SldGraph, SldSelection } from '@/types'
+import type { RiskItem, SldGraph, SldSelection } from '@/types'
 import RiskDetailCard from '@/components/risk/RiskDetailCard.vue'
-import { categoryColor, voltageHex } from '@/composables/useRiskStyle'
+import RiskDetailTabs from '@/components/risk/RiskDetailTabs.vue'
+import { sldStatusColor, sldStatusLabel, voltageHex } from '@/composables/useRiskStyle'
 
 /** Panel kanan SLD: tab "Detail Objek" (objek terpilih) dan "Kerawanan" (daftar pin pada sudut pandang ini). */
 const props = defineProps<{
@@ -10,7 +11,7 @@ const props = defineProps<{
   selection: SldSelection
   risks: RiskItem[]
 }>()
-const emit = defineEmits<{ selectRisk: [risk: RiskItem]; close: [] }>()
+const emit = defineEmits<{ selectRisk: [risk: RiskItem]; close: []; selectAsset: [code: string] }>()
 
 const tab = ref<'detail' | 'risk'>('detail')
 watch(
@@ -21,13 +22,11 @@ watch(
 )
 
 const search = ref('')
-const cats = ref<RiskCategory[]>([])
-const availableCats = computed(() => [...new Set(props.risks.map((r) => r.category))] as RiskCategory[])
 const filteredRisks = computed(() =>
   props.risks.filter((r) => {
     const q = search.value.toLowerCase()
     const hit = !q || r.title.toLowerCase().includes(q) || String(r.number) === q || r.condition.toLowerCase().includes(q)
-    return hit && (!cats.value.length || cats.value.includes(r.category))
+    return hit
   }),
 )
 
@@ -63,7 +62,7 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
             <v-chip size="x-small" variant="outlined" class="ops-mono">{{ selection.node.code }}</v-chip>
             <v-chip size="x-small" variant="tonal">{{ selection.node.type }}</v-chip>
             <v-chip size="x-small" variant="flat" :style="{ background: voltageHex(selection.node.voltageKv), color: '#fff' }">{{ selection.node.voltageKv }} kV</v-chip>
-            <v-chip size="x-small" :color="selection.node.status === 'ENERGIZED' ? 'success' : 'grey'" variant="tonal">{{ selection.node.status }}</v-chip>
+            <v-chip size="x-small" :color="sldStatusColor(selection.node.status)" variant="tonal">{{ sldStatusLabel[selection.node.status] }}</v-chip>
           </div>
           <v-table density="compact" class="text-caption">
             <tbody>
@@ -84,7 +83,7 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
             <v-chip size="x-small" variant="outlined" class="ops-mono">{{ selection.circuit.code }}</v-chip>
             <v-chip size="x-small" variant="tonal">{{ selection.circuit.type }}</v-chip>
             <v-chip size="x-small" variant="flat" :style="{ background: voltageHex(selection.circuit.voltageKv), color: '#fff' }">{{ selection.circuit.voltageKv }} kV</v-chip>
-            <v-chip size="x-small" :color="selection.circuit.status === 'ENERGIZED' ? 'success' : 'grey'" variant="tonal">{{ selection.circuit.status }}</v-chip>
+            <v-chip size="x-small" :color="sldStatusColor(selection.circuit.status)" variant="tonal">{{ sldStatusLabel[selection.circuit.status] }}</v-chip>
           </div>
           <v-table density="compact" class="text-caption">
             <tbody>
@@ -108,7 +107,7 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
           <div class="d-flex flex-wrap ga-1 my-2">
             <v-chip size="x-small" variant="outlined" class="ops-mono">{{ selection.ibt.code }}</v-chip>
             <v-chip size="x-small" variant="tonal">IBT_LINK</v-chip>
-            <v-chip size="x-small" :color="selection.ibt.status === 'ENERGIZED' ? 'success' : 'grey'" variant="tonal">{{ selection.ibt.status }}</v-chip>
+            <v-chip size="x-small" :color="sldStatusColor(selection.ibt.status)" variant="tonal">{{ sldStatusLabel[selection.ibt.status] }}</v-chip>
           </div>
           <v-table density="compact" class="text-caption">
             <tbody>
@@ -130,7 +129,7 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
           <div class="d-flex flex-wrap ga-1 my-2">
             <v-chip size="x-small" variant="outlined" class="ops-mono">{{ selection.bay.code }}</v-chip>
             <v-chip size="x-small" variant="tonal">BAY</v-chip>
-            <v-chip size="x-small" :color="selection.bay.status === 'ENERGIZED' ? 'success' : 'grey'" variant="tonal">{{ selection.bay.status }}</v-chip>
+            <v-chip size="x-small" :color="sldStatusColor(selection.bay.status)" variant="tonal">{{ sldStatusLabel[selection.bay.status] }}</v-chip>
           </div>
           <v-table density="compact" class="text-caption">
             <tbody>
@@ -142,10 +141,7 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
           </v-table>
         </template>
 
-        <template v-else-if="selection.kind === 'risk'">
-          <div class="text-caption font-weight-black text-medium-emphasis text-uppercase mb-2" style="letter-spacing: 0.08em">Titik kerawanan</div>
-          <RiskDetailCard :risk="selection.risk" active />
-        </template>
+        <RiskDetailTabs v-else-if="selection.kind === 'risk'" :risk="selection.risk" @select-asset="emit('selectAsset', $event)" />
 
         <div v-if="risksForSelection.length" class="mt-4">
           <div class="text-caption font-weight-black text-medium-emphasis text-uppercase mb-2" style="letter-spacing: 0.08em">Kerawanan pada objek ini</div>
@@ -156,9 +152,6 @@ const pct = (n?: number) => (n == null ? '-' : `${n}%`)
       <!-- KERAWANAN -->
       <v-window-item value="risk" class="pa-3">
         <v-text-field v-model="search" placeholder="Cari nomor, judul, atau objek..." prepend-inner-icon="mdi-magnify" class="mb-2" clearable />
-        <v-chip-group v-model="cats" multiple column class="mb-2">
-          <v-chip v-for="c in availableCats" :key="c" :value="c" size="small" :color="categoryColor(c)" variant="tonal" filter class="font-weight-bold">{{ c }}</v-chip>
-        </v-chip-group>
         <div class="d-flex flex-column ga-2">
           <RiskDetailCard
             v-for="r in filteredRisks"

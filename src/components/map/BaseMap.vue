@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import type { TransmissionLine } from '@/composables/useTransmissionLines'
 
 export interface MapMarker {
   id: string
@@ -18,6 +19,8 @@ const props = defineProps<{
   center: [number, number]
   zoom: number
   markers: MapMarker[]
+  /** Ruas saluran (garis) opsional yang digambar di bawah marker, mis. topologi antar GI/GITET. */
+  lines?: TransmissionLine[]
   /** Batas maksimal peta (opsional). Bila kosong, dihitung otomatis dari sebaran marker agar drag tetap fokus ke area tersebut. */
   maxBounds?: [[number, number], [number, number]]
   minZoom?: number
@@ -29,6 +32,24 @@ const emit = defineEmits<{ select: [id: string]; hover: [id: string | null] }>()
 const el = ref<HTMLDivElement>()
 let map: L.Map | undefined
 let layer: L.LayerGroup | undefined
+let lineLayer: L.LayerGroup | undefined
+
+/** Warna garis saluran mengikuti tingkat kerawanan koridor (bukan tegangan): merah = kedua ujung Rawan, kuning = salah satu Rawan/Waspada, biru = normal. */
+function lineStyle(ln: TransmissionLine) {
+  if (ln.status === 'critical') return { color: '#dc2626', weight: 3.5, dashArray: '6 4' }
+  if (ln.status === 'warning') return { color: '#f1c40f', weight: 2.5, dashArray: undefined }
+  return { color: '#0047AB', weight: ln.voltageKv >= 500 ? 2.5 : 1.8, dashArray: ln.voltageKv < 500 ? '2 4' : undefined }
+}
+
+function renderLines() {
+  if (!map) return
+  lineLayer?.remove()
+  lineLayer = L.layerGroup().addTo(map)
+  for (const ln of props.lines ?? []) {
+    const { color, weight, dashArray } = lineStyle(ln)
+    L.polyline([ln.from, ln.to], { color, weight, opacity: 0.8, dashArray }).bindTooltip(`${ln.name} — ${ln.voltageKv} kV`, { sticky: true }).addTo(lineLayer)
+  }
+}
 
 function renderMarkers() {
   if (!map) return
@@ -73,6 +94,7 @@ onMounted(() => {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map)
   L.control.zoom({ position: 'bottomright' }).addTo(map)
+  renderLines()
   renderMarkers()
   // Ukuran container bisa berubah setelah mount (flex layout)
   setTimeout(() => map?.invalidateSize(), 50)
@@ -86,6 +108,7 @@ watch(
   },
   { deep: true },
 )
+watch(() => props.lines, renderLines, { deep: true })
 watch(
   () => [props.center, props.zoom] as const,
   ([c, z]) => map?.flyTo(c, z, { duration: 0.6 }),

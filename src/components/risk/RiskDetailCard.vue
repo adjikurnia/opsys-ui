@@ -27,7 +27,6 @@ const lines = (t: string) => t.split('\n').filter((l) => l.trim())
           {{ risk.assetType }} {{ risk.voltage }} · {{ risk.lineGiSegment }}
         </div>
         <div class="d-flex flex-wrap ga-1 mt-1">
-          <v-chip size="x-small" :color="categoryColor(risk.category)" variant="flat" class="font-weight-black">{{ risk.category }}</v-chip>
           <v-chip size="x-small" :color="levelColor(risk.riskLevel)" variant="tonal" class="font-weight-bold">{{ risk.riskLevel }}</v-chip>
           <v-chip size="x-small" variant="outlined">prioritas {{ risk.priority }}</v-chip>
           <v-chip size="x-small" variant="outlined">{{ risk.status }}</v-chip>

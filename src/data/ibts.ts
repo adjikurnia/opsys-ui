@@ -8,7 +8,4 @@ export const ibts: Ibt[] = [
   { id: 'ibt-srlya', name: 'IBT 1 & 2 Suralaya', substation: 'GITET Suralaya', upbId: 'upb-jakban', subsystemId: 'ss-srlya', capacityMVA: 500, voltage: '500/150 kV', units: 2, loadingPct: 84, riskLevel: 'Sangat Rawan', status: 'Beroperasi' },
   { id: 'ibt-clgon', name: 'IBT 4 Cilegon Baru', substation: 'GITET Cilegon', upbId: 'upb-jakban', subsystemId: 'ss-srlya', capacityMVA: 500, voltage: '500/150 kV', units: 1, loadingPct: 62, riskLevel: 'Sedang', status: 'Beroperasi' },
   { id: 'ibt-dksbi', name: 'IBT 1 & 2 Duri Kosambi', substation: 'GITET Duri Kosambi', upbId: 'upb-jakban', capacityMVA: 1000, voltage: '500/150 kV', units: 2, loadingPct: 55, riskLevel: 'Sedang', status: 'Beroperasi' },
-  { id: 'ibt-cibng', name: 'IBT 1 & 2 Cibinong', substation: 'GITET Cibinong', upbId: 'upb-jabar', subsystemId: 'ss-bogor', capacityMVA: 1000, voltage: '500/150 kV', units: 2, loadingPct: 74, riskLevel: 'Rawan', status: 'Beroperasi' },
-  { id: 'ibt-ungrn', name: 'IBT 1 & 2 Ungaran', substation: 'GITET Ungaran', upbId: 'upb-jateng', subsystemId: 'ss-ungaran', capacityMVA: 1000, voltage: '500/150 kV', units: 2, loadingPct: 48, riskLevel: 'Aman', status: 'Pemeliharaan' },
-  { id: 'ibt-krian', name: 'IBT 1, 2 & 3 Krian', substation: 'GITET Krian', upbId: 'upb-jatim', subsystemId: 'ss-krian', capacityMVA: 1500, voltage: '500/150 kV', units: 3, loadingPct: 70, riskLevel: 'Rawan', status: 'Beroperasi' },
 ]

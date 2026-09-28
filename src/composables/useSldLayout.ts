@@ -1,6 +1,20 @@
 import { computed, type Ref } from 'vue'
-import type { RiskItem, SldBay, SldCircuit, SldGraph, SldIbtLink, SldNode } from '@/types'
+import type { RiskItem, SldBay, SldCircuit, SldGraph, SldIbtLink, SldNode, SldSelection } from '@/types'
 import { voltageHex } from './useRiskStyle'
+
+/** Cari objek (busbar/penghantar/IBT/bay) di sebuah graph berdasarkan kode — dipakai navigasi dari tab "Aset Terkait". */
+export function findSldSelectionByCode(graph: SldGraph | undefined, code: string): SldSelection | null {
+  if (!graph) return null
+  const node = graph.nodes.find((n) => n.code === code)
+  if (node) return { kind: 'node', node }
+  const circuit = graph.circuits.find((c) => c.code === code)
+  if (circuit) return { kind: 'circuit', circuit }
+  const ibt = graph.ibtLinks.find((i) => i.code === code)
+  if (ibt) return { kind: 'ibt', ibt }
+  const bay = graph.bays.find((b) => b.code === code)
+  if (bay) return { kind: 'bay', bay }
+  return null
+}
 
 // Konstanta geometri meniru renderer engine (unit SVG).
 export const SLD = {

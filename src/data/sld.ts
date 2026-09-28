@@ -6,13 +6,14 @@ import type { SldGraph } from '@/types'
  */
 export const sldGraphs: SldGraph[] = [
   // -------------------------------------------------------------------------
-  // SS Lontar - Balaraja 1,2 - Kembangan 1,2 — Sisi Kembangan
+  // SS Lontar - Balaraja 1,2 - Kembangan 1,2 — satu gambar penuh
+  // (kiri: simpul Kembangan, kanan: simpul Lontar-Balaraja)
   // -------------------------------------------------------------------------
   {
-    id: 'lbk-kembangan',
+    id: 'lbk-full',
     subsystemId: 'ss-lbk',
     title: 'SS Lontar - Balaraja 1,2 - Kembangan 1,2',
-    viewName: 'Sisi Kembangan',
+    viewName: 'SLD lengkap',
     ruleProfile: 'SUBSYSTEM_150',
     tierCount: 6,
     nodes: [
@@ -30,6 +31,14 @@ export const sldGraphs: SldGraph[] = [
       { code: 'CURUG', name: 'Curug', type: 'GI', voltageKv: 150, role: 'CORE', tier: 5, status: 'ENERGIZED', x: 1041, halfWidth: 69, transformers: 1 },
       { code: 'JTAKE', name: 'Jatake', type: 'GI', voltageKv: 150, role: 'CORE', tier: 5, status: 'ENERGIZED', x: 1358, halfWidth: 138, transformers: 1, capacitors: 2 },
       { code: 'MAXIM', name: 'Maxim', type: 'GI', voltageKv: 150, role: 'CORE', tier: 6, status: 'ENERGIZED', x: 1404, halfWidth: 92, transformers: 3 },
+      { code: 'GITET_BLRJA', name: 'GITET Balaraja', type: 'GITET', voltageKv: 500, role: 'SOURCE', tier: 0, status: 'ENERGIZED', x: 2100, halfWidth: 49, labelTop: true },
+      { code: 'BLRJA', name: 'Balaraja', type: 'GI', voltageKv: 150, role: 'SOURCE', tier: 1, status: 'ENERGIZED', x: 2100, halfWidth: 150, transformers: 1, note: 'Bus 150 kV disuplai IBT-1,2 Balaraja dan PLTU Lontar.' },
+      { code: 'TGRBR', name: 'Tangerang Baru', type: 'GI', voltageKv: 150, role: 'CORE', tier: 2, status: 'ENERGIZED', x: 1950, halfWidth: 80, transformers: 2 },
+      { code: 'PSKMB', name: 'Pasar Kemis Baru', type: 'GI', voltageKv: 150, role: 'CORE', tier: 2, status: 'ENERGIZED', x: 2300, halfWidth: 80, transformers: 1 },
+      { code: 'LNTAR', name: 'PLTU Lontar', type: 'GI', voltageKv: 150, role: 'SOURCE', tier: 1, status: 'ENERGIZED', x: 2560, halfWidth: 90, note: 'Pembangkit 3x315 MW, evakuasi ke bus Balaraja.' },
+      { code: 'GJTGL', name: 'Gajah Tunggal', type: 'GI', voltageKv: 150, role: 'CORE', tier: 3, status: 'ENERGIZED', x: 2300, halfWidth: 60, transformers: 1 },
+      { code: 'PSKMS', name: 'Pasar Kemis', type: 'GI', voltageKv: 150, role: 'BOUNDARY', tier: 4, status: 'ENERGIZED', x: 2300, halfWidth: 80, transformers: 1 },
+      { code: 'TLKNG', name: 'Teluknaga', type: 'GI', voltageKv: 150, role: 'CORE', tier: 3, status: 'ENERGIZED', x: 1950, halfWidth: 70, transformers: 1 },
     ],
     circuits: [
       { id: 'c5', code: 'PHT_KMBGN_MTLAN', name: 'Kembangan - Metland', type: 'SKTT', voltageKv: 150, from: 'KMBGN', to: 'MTLAN', fromPort: -46, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 7.2, loadingPct: 54 },
@@ -45,10 +54,18 @@ export const sldGraphs: SldGraph[] = [
       { id: 'c12', code: 'SKTT_SNYAN_DNYSA_DIRECT', name: 'Senayan - Danayasa (direct)', type: 'SKTT', voltageKv: 150, from: 'SNYAN', to: 'DNYSA', fromPort: -37, toPort: -14, circuitCount: 1, status: 'ENERGIZED', lengthKm: 2.1, loadingPct: 33 },
       { id: 'c13', code: 'SKTT_SNYAN_DNYSA_SP', name: 'Senayan - Danayasa (via PLTD Senayan, single phi)', type: 'SKTT', voltageKv: 150, from: 'SNYAN', to: 'DNYSA', fromPort: -9, toPort: 14, circuitCount: 1, status: 'ENERGIZED', lengthKm: 2.4, loadingPct: 21, note: 'Single phi' },
       { id: 'c25', code: 'PHT_JTAKE_MAXIM', name: 'Jatake - Maxim', type: 'SKTT', voltageKv: 150, from: 'JTAKE', to: 'MAXIM', fromPort: 46, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 3.8, loadingPct: 47 },
+      { id: 'd1', code: 'SUTT_BLRJA_TGRBR', name: 'Balaraja - Tangerang Baru', type: 'SUTT', voltageKv: 150, from: 'BLRJA', to: 'TGRBR', fromPort: -60, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 14.5, loadingPct: 63 },
+      { id: 'd2', code: 'SUTT_BLRJA_PSKMB', name: 'Balaraja - Pasar Kemis Baru', type: 'SUTT', voltageKv: 150, from: 'BLRJA', to: 'PSKMB', fromPort: 60, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 11.0, loadingPct: 57 },
+      { id: 'd3', code: 'SUTT_LNTAR_BLRJA', name: 'PLTU Lontar - Balaraja', type: 'SUTT', voltageKv: 150, from: 'LNTAR', to: 'BLRJA', fromPort: 0, toPort: 110, circuitCount: 2, status: 'ENERGIZED', lengthKm: 21.3, loadingPct: 78 },
+      { id: 'd4', code: 'SUTT_PSKMB_GJTGL', name: 'Pasar Kemis Baru - Gajah Tunggal', type: 'SUTT', voltageKv: 150, from: 'PSKMB', to: 'GJTGL', fromPort: 0, toPort: 0, circuitCount: 1, status: 'ENERGIZED', lengthKm: 4.2, loadingPct: 49, note: 'Masih single phi' },
+      { id: 'd5', code: 'SUTT_GJTGL_PSKMS', name: 'Gajah Tunggal - Pasar Kemis', type: 'SUTT', voltageKv: 150, from: 'GJTGL', to: 'PSKMS', fromPort: 0, toPort: 0, circuitCount: 1, status: 'ENERGIZED', lengthKm: 3.1, loadingPct: 40, note: 'Masih single phi' },
+      { id: 'd6', code: 'SUTT_TGRBR_TLKNG', name: 'Tangerang Baru - Teluknaga', type: 'SUTT', voltageKv: 150, from: 'TGRBR', to: 'TLKNG', fromPort: 0, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 9.6, loadingPct: 35 },
     ],
     ibtLinks: [
       { id: 'ibt1', code: 'IBT_KMBGN_1', name: 'IBT 1 Kembangan 500/150 kV', from: 'GITET_KMBGN', to: 'KMBGN', x: 665, capacityMVA: 500, loadingPct: 86, status: 'ENERGIZED' },
       { id: 'ibt2', code: 'IBT_KMBGN_2', name: 'IBT 2 Kembangan 500/150 kV', from: 'GITET_KMBGN', to: 'KMBGN', x: 711, capacityMVA: 500, loadingPct: 84, status: 'ENERGIZED' },
+      { id: 'ibt-b1', code: 'IBT_BLRJA_1', name: 'IBT 1 Balaraja 500/150 kV', from: 'GITET_BLRJA', to: 'BLRJA', x: 2077, capacityMVA: 500, loadingPct: 68, status: 'ENERGIZED' },
+      { id: 'ibt-b2', code: 'IBT_BLRJA_2', name: 'IBT 2 Balaraja 500/150 kV', from: 'GITET_BLRJA', to: 'BLRJA', x: 2123, capacityMVA: 500, loadingPct: 66, status: 'ENERGIZED' },
     ],
     bays: [
       { id: 'b1', code: 'DKSBI', name: 'Durikosambi', busCode: 'KMBGN', x: 734, circuitCount: 2, status: 'ENERGIZED', note: 'GI batas → SS Muarakarang' },
@@ -60,44 +77,8 @@ export const sldGraphs: SldGraph[] = [
       { id: 'b7', code: 'SVRNA', name: 'Suvarna Sutra', busCode: 'CKUPA', x: 1188, circuitCount: 2, status: 'ENERGIZED' },
       { id: 'b8', code: 'PSKMS', name: 'Pasar Kemis', busCode: 'CKUPA', x: 1227, circuitCount: 2, status: 'ENERGIZED' },
       { id: 'b9', code: 'JTKBR', name: 'Jatake Baru', busCode: 'JTAKE', x: 1450, circuitCount: 2, status: 'ENERGIZED' },
-    ],
-  },
-
-  // -------------------------------------------------------------------------
-  // SS Lontar - Balaraja 1,2 - Kembangan 1,2 — Sisi Lontar-Balaraja
-  // -------------------------------------------------------------------------
-  {
-    id: 'lbk-balaraja',
-    subsystemId: 'ss-lbk',
-    title: 'SS Lontar - Balaraja 1,2 - Kembangan 1,2',
-    viewName: 'Sisi Lontar-Balaraja',
-    ruleProfile: 'SUBSYSTEM_150',
-    tierCount: 4,
-    nodes: [
-      { code: 'GITET_BLRJA', name: 'GITET Balaraja', type: 'GITET', voltageKv: 500, role: 'SOURCE', tier: 0, status: 'ENERGIZED', x: 420, halfWidth: 49, labelTop: true },
-      { code: 'BLRJA', name: 'Balaraja', type: 'GI', voltageKv: 150, role: 'SOURCE', tier: 1, status: 'ENERGIZED', x: 420, halfWidth: 150, transformers: 1, note: 'Bus 150 kV disuplai IBT-1,2 Balaraja dan PLTU Lontar.' },
-      { code: 'TGRBR', name: 'Tangerang Baru', type: 'GI', voltageKv: 150, role: 'CORE', tier: 2, status: 'ENERGIZED', x: 250, halfWidth: 80, transformers: 2 },
-      { code: 'PSKMB', name: 'Pasar Kemis Baru', type: 'GI', voltageKv: 150, role: 'CORE', tier: 2, status: 'ENERGIZED', x: 620, halfWidth: 80, transformers: 1 },
-      { code: 'LNTAR', name: 'PLTU Lontar', type: 'GI', voltageKv: 150, role: 'SOURCE', tier: 1, status: 'ENERGIZED', x: 900, halfWidth: 90, note: 'Pembangkit 3x315 MW, evakuasi ke bus Balaraja.' },
-      { code: 'GJTGL', name: 'Gajah Tunggal', type: 'GI', voltageKv: 150, role: 'CORE', tier: 3, status: 'ENERGIZED', x: 620, halfWidth: 60, transformers: 1 },
-      { code: 'PSKMS', name: 'Pasar Kemis', type: 'GI', voltageKv: 150, role: 'BOUNDARY', tier: 4, status: 'ENERGIZED', x: 620, halfWidth: 80, transformers: 1 },
-      { code: 'TLKNG', name: 'Teluknaga', type: 'GI', voltageKv: 150, role: 'CORE', tier: 3, status: 'ENERGIZED', x: 250, halfWidth: 70, transformers: 1 },
-    ],
-    circuits: [
-      { id: 'd1', code: 'SUTT_BLRJA_TGRBR', name: 'Balaraja - Tangerang Baru', type: 'SUTT', voltageKv: 150, from: 'BLRJA', to: 'TGRBR', fromPort: -60, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 14.5, loadingPct: 63 },
-      { id: 'd2', code: 'SUTT_BLRJA_PSKMB', name: 'Balaraja - Pasar Kemis Baru', type: 'SUTT', voltageKv: 150, from: 'BLRJA', to: 'PSKMB', fromPort: 60, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 11.0, loadingPct: 57 },
-      { id: 'd3', code: 'SUTT_LNTAR_BLRJA', name: 'PLTU Lontar - Balaraja', type: 'SUTT', voltageKv: 150, from: 'LNTAR', to: 'BLRJA', fromPort: 0, toPort: 110, circuitCount: 2, status: 'ENERGIZED', lengthKm: 21.3, loadingPct: 78 },
-      { id: 'd4', code: 'SUTT_PSKMB_GJTGL', name: 'Pasar Kemis Baru - Gajah Tunggal', type: 'SUTT', voltageKv: 150, from: 'PSKMB', to: 'GJTGL', fromPort: 0, toPort: 0, circuitCount: 1, status: 'ENERGIZED', lengthKm: 4.2, loadingPct: 49, note: 'Masih single phi' },
-      { id: 'd5', code: 'SUTT_GJTGL_PSKMS', name: 'Gajah Tunggal - Pasar Kemis', type: 'SUTT', voltageKv: 150, from: 'GJTGL', to: 'PSKMS', fromPort: 0, toPort: 0, circuitCount: 1, status: 'ENERGIZED', lengthKm: 3.1, loadingPct: 40, note: 'Masih single phi' },
-      { id: 'd6', code: 'SUTT_TGRBR_TLKNG', name: 'Tangerang Baru - Teluknaga', type: 'SUTT', voltageKv: 150, from: 'TGRBR', to: 'TLKNG', fromPort: 0, toPort: 0, circuitCount: 2, status: 'ENERGIZED', lengthKm: 9.6, loadingPct: 35 },
-    ],
-    ibtLinks: [
-      { id: 'ibt-b1', code: 'IBT_BLRJA_1', name: 'IBT 1 Balaraja 500/150 kV', from: 'GITET_BLRJA', to: 'BLRJA', x: 397, capacityMVA: 500, loadingPct: 68, status: 'ENERGIZED' },
-      { id: 'ibt-b2', code: 'IBT_BLRJA_2', name: 'IBT 2 Balaraja 500/150 kV', from: 'GITET_BLRJA', to: 'BLRJA', x: 443, capacityMVA: 500, loadingPct: 66, status: 'ENERGIZED' },
-    ],
-    bays: [
-      { id: 'bb1', code: 'CKUPA', name: 'Cikupa', busCode: 'BLRJA', x: 500, circuitCount: 2, status: 'ENERGIZED', note: 'Menuju sisi Kembangan' },
-      { id: 'bb2', code: 'GJTGL', name: 'Gajah Tunggal (KTT)', busCode: 'PSKMB', x: 660, circuitCount: 1, status: 'PLANNED', note: 'Rencana sirkit 2' },
+      { id: 'bb1', code: 'CKUPA', name: 'Cikupa', busCode: 'BLRJA', x: 2180, circuitCount: 2, status: 'ENERGIZED', note: 'Ruas menuju GI Cikupa' },
+      { id: 'bb2', code: 'GJTGL', name: 'Gajah Tunggal (KTT)', busCode: 'PSKMB', x: 2340, circuitCount: 1, status: 'PLANNED', note: 'Rencana sirkit 2' },
     ],
   },
 
